@@ -1,4 +1,4 @@
-use std::ops::{Add, BitXor, AddAssign, BitXorAssign};
+use std::ops::{Add, Sub, BitXor, AddAssign, SubAssign, BitXorAssign};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Nimber<T> {
@@ -59,6 +59,52 @@ impl<'b, F: BitXorAssign<&'b S>, S> AddAssign<&'b Nimber<S>> for Nimber<F> {
     }
 }
 
+impl<F: BitXor<S>, S> Sub<Nimber<S>> for Nimber<F> {
+    type Output = Nimber<<F as BitXor<S>>::Output>;
+
+    fn sub(self, rhs: Nimber<S>) -> Self::Output {
+        Nimber { x: self.x ^ rhs.x }
+    }
+}
+
+impl<'a, F: 'a, S> Sub<Nimber<S>> for &'a Nimber<F>
+    where &'a F: BitXor<S> {
+    type Output = Nimber<<&'a F as BitXor<S>>::Output>;
+
+    fn sub(self, rhs: Nimber<S>) -> Self::Output {
+        Nimber { x: &self.x ^ rhs.x }
+    }
+}
+
+impl<'b, F: BitXor<&'b S>, S> Sub<&'b Nimber<S>> for Nimber<F> {
+    type Output = Nimber<<F as BitXor<&'b S>>::Output>;
+
+    fn sub(self, rhs: &'b Nimber<S>) -> Self::Output {
+        Nimber { x: self.x ^ &rhs.x }
+    }
+}
+
+impl<'a, 'b, F, S> Sub<&'b Nimber<S>> for &'a Nimber<F>
+    where &'a F: BitXor<&'b S> {
+    type Output = Nimber<<&'a F as BitXor<&'b S>>::Output>;
+
+    fn sub(self, rhs: &'b Nimber<S>) -> Self::Output {
+        Nimber { x: &self.x ^ &rhs.x }
+    }
+}
+
+impl<F: BitXorAssign<S>, S> SubAssign<Nimber<S>> for Nimber<F> {
+    fn sub_assign(&mut self, rhs: Nimber<S>) {
+        self.x ^= rhs.x;
+    }
+}
+
+impl<'b, F: BitXorAssign<&'b S>, S> SubAssign<&'b Nimber<S>> for Nimber<F> {
+    fn sub_assign(&mut self, rhs: &'b Nimber<S>) {
+        self.x ^= &rhs.x;
+    }
+}
+
 use num_bigint::BigUint;
 
 pub type Nim8 = Nimber<u8>;
@@ -79,8 +125,25 @@ mod tests {
         for a in 0u8..8 {
             for b in 0u8..8 {
                 assert_eq!(Nim8::from(a) + Nim8::from(b), Nim8::from(a ^ b));
+            }
+        }
+    }
+
+    #[test]
+    fn bigint_add() {
+        for a in 0u8..8 {
+            for b in 0u8..8 {
                 assert_eq!(BigNim::from(BigUint::from(a)) + BigNim::from(BigUint::from(b)),
                            BigNim::from(BigUint::from(a ^ b)));
+            }
+        }
+    }
+
+    #[test]
+    fn sub() {
+        for a in 0u8..8 {
+            for b in 0u8..8 {
+                assert_eq!(Nim8::from(a) - Nim8::from(b), Nim8::from(a) + Nim8::from(b));
             }
         }
     }
