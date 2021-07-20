@@ -1,115 +1,9 @@
-use std::ops::{Add, Sub, BitXor, AddAssign, SubAssign, BitXorAssign};
-
-#[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Nimber<T> {
     x: T,
 }
 
-impl<T: Copy> Copy for Nimber<T> {}
-
-impl<T: Default> Default for Nimber<T> {
-    fn default() -> Self {
-        Nimber { x: T::default() }
-    }
-}
-
-impl<T> From<T> for Nimber<T> {
-    fn from(x: T) -> Self {
-        Self { x }
-    }
-}
-
-impl<F: BitXor<S>, S> Add<Nimber<S>> for Nimber<F> {
-    type Output = Nimber<<F as BitXor<S>>::Output>;
-
-    fn add(self, rhs: Nimber<S>) -> Self::Output {
-        Nimber { x: self.x ^ rhs.x }
-    }
-}
-
-impl<'a, F: 'a, S> Add<Nimber<S>> for &'a Nimber<F>
-    where &'a F: BitXor<S> {
-    type Output = Nimber<<&'a F as BitXor<S>>::Output>;
-
-    fn add(self, rhs: Nimber<S>) -> Self::Output {
-        Nimber { x: &self.x ^ rhs.x }
-    }
-}
-
-impl<'b, F: BitXor<&'b S>, S> Add<&'b Nimber<S>> for Nimber<F> {
-    type Output = Nimber<<F as BitXor<&'b S>>::Output>;
-
-    fn add(self, rhs: &'b Nimber<S>) -> Self::Output {
-        Nimber { x: self.x ^ &rhs.x }
-    }
-}
-
-impl<'a, 'b, F, S> Add<&'b Nimber<S>> for &'a Nimber<F>
-    where &'a F: BitXor<&'b S> {
-    type Output = Nimber<<&'a F as BitXor<&'b S>>::Output>;
-
-    fn add(self, rhs: &'b Nimber<S>) -> Self::Output {
-        Nimber { x: &self.x ^ &rhs.x }
-    }
-}
-
-impl<F: BitXorAssign<S>, S> AddAssign<Nimber<S>> for Nimber<F> {
-    fn add_assign(&mut self, rhs: Nimber<S>) {
-        self.x ^= rhs.x;
-    }
-}
-
-impl<'b, F: BitXorAssign<&'b S>, S> AddAssign<&'b Nimber<S>> for Nimber<F> {
-    fn add_assign(&mut self, rhs: &'b Nimber<S>) {
-        self.x ^= &rhs.x;
-    }
-}
-
-impl<F: BitXor<S>, S> Sub<Nimber<S>> for Nimber<F> {
-    type Output = Nimber<<F as BitXor<S>>::Output>;
-
-    fn sub(self, rhs: Nimber<S>) -> Self::Output {
-        Nimber { x: self.x ^ rhs.x }
-    }
-}
-
-impl<'a, F: 'a, S> Sub<Nimber<S>> for &'a Nimber<F>
-    where &'a F: BitXor<S> {
-    type Output = Nimber<<&'a F as BitXor<S>>::Output>;
-
-    fn sub(self, rhs: Nimber<S>) -> Self::Output {
-        Nimber { x: &self.x ^ rhs.x }
-    }
-}
-
-impl<'b, F: BitXor<&'b S>, S> Sub<&'b Nimber<S>> for Nimber<F> {
-    type Output = Nimber<<F as BitXor<&'b S>>::Output>;
-
-    fn sub(self, rhs: &'b Nimber<S>) -> Self::Output {
-        Nimber { x: self.x ^ &rhs.x }
-    }
-}
-
-impl<'a, 'b, F, S> Sub<&'b Nimber<S>> for &'a Nimber<F>
-    where &'a F: BitXor<&'b S> {
-    type Output = Nimber<<&'a F as BitXor<&'b S>>::Output>;
-
-    fn sub(self, rhs: &'b Nimber<S>) -> Self::Output {
-        Nimber { x: &self.x ^ &rhs.x }
-    }
-}
-
-impl<F: BitXorAssign<S>, S> SubAssign<Nimber<S>> for Nimber<F> {
-    fn sub_assign(&mut self, rhs: Nimber<S>) {
-        self.x ^= rhs.x;
-    }
-}
-
-impl<'b, F: BitXorAssign<&'b S>, S> SubAssign<&'b Nimber<S>> for Nimber<F> {
-    fn sub_assign(&mut self, rhs: &'b Nimber<S>) {
-        self.x ^= &rhs.x;
-    }
-}
+mod derive;
+mod addition;
 
 pub type Nim8 = Nimber<u8>;
 pub type Nim16 = Nimber<u16>;
@@ -160,5 +54,21 @@ mod tests {
                 assert_eq!(Nim8::from(a) - Nim8::from(b), Nim8::from(a) + Nim8::from(b));
             }
         }
+    }
+
+    #[test]
+    fn ord() {
+        let two = Nim8::from(2);
+        let three = Nim8::from(3);
+        let four = Nim8::from(4);
+
+        assert!(two < three);
+        assert!(two <= three);
+        assert!(three <= three);
+        assert!(three >= three);
+        assert_eq!(three, three);
+        assert!(four > three);
+        assert!(four >= three);
+        assert_ne!(two, three);
     }
 }
