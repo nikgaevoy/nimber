@@ -7,6 +7,12 @@ pub struct Nimber<T> {
 
 impl<T: Copy> Copy for Nimber<T> {}
 
+impl<T: Default> Default for Nimber<T> {
+    fn default() -> Self {
+        Nimber { x: T::default() }
+    }
+}
+
 impl<T> From<T> for Nimber<T> {
     fn from(x: T) -> Self {
         Self { x }
@@ -105,19 +111,26 @@ impl<'b, F: BitXorAssign<&'b S>, S> SubAssign<&'b Nimber<S>> for Nimber<F> {
     }
 }
 
-use num_bigint::BigUint;
-
 pub type Nim8 = Nimber<u8>;
 pub type Nim16 = Nimber<u16>;
 pub type Nim32 = Nimber<u32>;
 pub type Nim64 = Nimber<u64>;
 pub type Nim128 = Nimber<u128>;
+
+#[cfg(feature = "num-bigint")]
+use num_bigint::BigUint;
+
+#[cfg(feature = "num-bigint")]
 pub type BigNim = Nimber<BigUint>;
 
 
 #[cfg(test)]
 mod tests {
-    use crate::{Nim8, BigNim};
+    use crate::Nim8;
+
+    #[cfg(feature = "num-bigint")]
+    use crate::BigNim;
+    #[cfg(feature = "num-bigint")]
     use num_bigint::BigUint;
 
     #[test]
@@ -130,6 +143,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "num-bigint")]
     fn bigint_add() {
         for a in 0u8..8 {
             for b in 0u8..8 {
