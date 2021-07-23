@@ -2,6 +2,8 @@ use super::Nimber;
 
 use std::ops::{Add, Sub, BitXor, AddAssign, SubAssign, BitXorAssign};
 
+// Add
+
 impl<F: BitXor<S>, S> Add<Nimber<S>> for Nimber<F> {
     type Output = Nimber<<F as BitXor<S>>::Output>;
 
@@ -53,6 +55,8 @@ impl<'b, F: BitXorAssign<&'b S>, S> AddAssign<&'b Nimber<S>> for Nimber<F> {
         self.x ^= &rhs.x;
     }
 }
+
+// Sub
 
 impl<F: BitXor<S>, S> Sub<Nimber<S>> for Nimber<F> {
     type Output = Nimber<<F as BitXor<S>>::Output>;
