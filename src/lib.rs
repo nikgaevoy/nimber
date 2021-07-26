@@ -2,6 +2,9 @@ pub struct Nimber<T> {
     x: T,
 }
 
+#[macro_use]
+mod macros;
+
 mod derive;
 mod addition;
 mod multiplication;
@@ -51,9 +54,24 @@ mod tests {
 
     #[test]
     fn add() {
-        for a in 0u8..8 {
-            for b in 0u8..8 {
+        for a in u8::MIN..u8::MAX {
+            for b in u8::MIN..u8::MAX {
                 assert_eq!(Nimber::from(a) + Nimber::from(b), Nimber::from(a ^ b));
+            }
+        }
+    }
+
+    #[test]
+    fn assign_same() {
+        for a in u8::MIN..u8::MAX {
+            for b in u8::MIN..u8::MAX {
+                let mut sa = Nimber::from(a);
+                sa += Nimber::from(b);
+                assert_eq!(sa, Nimber::from(a) + Nimber::from(b));
+
+                let mut sa = Nimber::from(a);
+                sa *= Nimber::from(b);
+                assert_eq!(sa, Nimber::from(a) * Nimber::from(b));
             }
         }
     }
@@ -61,8 +79,8 @@ mod tests {
     #[test]
     #[cfg(feature = "num-bigint")]
     fn bigint_add() {
-        for a in 0u8..8 {
-            for b in 0u8..8 {
+        for a in u8::MIN..u8::MAX {
+            for b in u8::MIN..u8::MAX {
                 assert_eq!(BigNim::from(BigUint::from(a)) + BigNim::from(BigUint::from(b)),
                            BigNim::from(BigUint::from(a ^ b)));
             }
@@ -71,8 +89,8 @@ mod tests {
 
     #[test]
     fn sub() {
-        for a in 0u8..8 {
-            for b in 0u8..8 {
+        for a in u8::MIN..u8::MAX {
+            for b in u8::MIN..u8::MAX {
                 assert_eq!(Nimber::from(a) - Nimber::from(b), Nimber::from(a) + Nimber::from(b));
             }
         }
@@ -132,6 +150,14 @@ mod tests {
                 assert_eq!((Nimber::from(BigUint::from(a)) * Nimber::from(BigUint::from(b))).x,
                            BigUint::from((Nimber::from(a) * Nimber::from(b)).x));
             }
+        }
+    }
+
+    #[test]
+    fn neg_not() {
+        for a in u8::MIN..u8::MAX {
+            assert_eq!(!Nimber::from(a), Nimber::from(!a));
+            assert_eq!(-Nimber::from(a), Nimber::from(a));
         }
     }
 }

@@ -1,111 +1,58 @@
 use super::Nimber;
 
-use std::ops::{Add, Sub, BitXor, AddAssign, SubAssign, BitXorAssign};
+use std::ops::{Add, Sub, BitXor, AddAssign, SubAssign, BitXorAssign, BitOr, BitOrAssign, BitAnd, BitAndAssign, Shl, ShlAssign, Shr, ShrAssign, Neg, Not};
 
-// Add
+nimber_nimber_forward_binop!(impl Add, add as BitXor, bitxor);
+nimber_nimber_forward_binop_assign!(impl AddAssign, add_assign as BitXorAssign, bitxor_assign);
 
-impl<F: BitXor<S>, S> Add<Nimber<S>> for Nimber<F> {
-    type Output = Nimber<<F as BitXor<S>>::Output>;
+nimber_nimber_forward_binop!(impl Sub, sub as BitXor, bitxor);
+nimber_nimber_forward_binop_assign!(impl SubAssign, sub_assign as BitXorAssign, bitxor_assign);
 
-    #[inline]
-    fn add(self, rhs: Nimber<S>) -> Self::Output {
-        Nimber { x: self.x ^ rhs.x }
+nimber_nimber_forward_binop!(impl BitXor, bitxor);
+nimber_nimber_forward_binop_assign!(impl BitXorAssign, bitxor_assign);
+
+nimber_nimber_forward_binop!(impl BitOr, bitor);
+nimber_nimber_forward_binop_assign!(impl BitOrAssign, bitor_assign);
+
+nimber_nimber_forward_binop!(impl BitAnd, bitand);
+nimber_nimber_forward_binop_assign!(impl BitAndAssign, bitand_assign);
+
+nimber_val_forward_binop!(impl Shr, shr);
+nimber_val_forward_binop_assign!(impl ShrAssign, shr_assign);
+
+nimber_val_forward_binop!(impl Shl, shl);
+nimber_val_forward_binop_assign!(impl ShlAssign, shl_assign);
+
+impl<T> Neg for Nimber<T> {
+    type Output = Nimber<T>;
+
+    fn neg(self) -> Self::Output {
+        self
     }
 }
 
-impl<'a, F: 'a, S> Add<Nimber<S>> for &'a Nimber<F>
-    where &'a F: BitXor<S> {
-    type Output = Nimber<<&'a F as BitXor<S>>::Output>;
+impl<T> Neg for &Nimber<T>
+    where Nimber<T>: Clone {
+    type Output = Nimber<T>;
 
-    #[inline]
-    fn add(self, rhs: Nimber<S>) -> Self::Output {
-        Nimber { x: &self.x ^ rhs.x }
+    fn neg(self) -> Self::Output {
+        self.clone()
     }
 }
 
-impl<'b, F: BitXor<&'b S>, S> Add<&'b Nimber<S>> for Nimber<F> {
-    type Output = Nimber<<F as BitXor<&'b S>>::Output>;
+impl<T: Not<Output=T>> Not for Nimber<T> {
+    type Output = Nimber<T>;
 
-    #[inline]
-    fn add(self, rhs: &'b Nimber<S>) -> Self::Output {
-        Nimber { x: self.x ^ &rhs.x }
+    fn not(self) -> Self::Output {
+        Nimber::from(!self.x)
     }
 }
 
-impl<'a, 'b, F, S> Add<&'b Nimber<S>> for &'a Nimber<F>
-    where &'a F: BitXor<&'b S> {
-    type Output = Nimber<<&'a F as BitXor<&'b S>>::Output>;
+impl<'a, T> Not for &'a Nimber<T>
+    where &'a T: Not<Output=T> {
+    type Output = Nimber<T>;
 
-    #[inline]
-    fn add(self, rhs: &'b Nimber<S>) -> Self::Output {
-        Nimber { x: &self.x ^ &rhs.x }
-    }
-}
-
-impl<F: BitXorAssign<S>, S> AddAssign<Nimber<S>> for Nimber<F> {
-    #[inline]
-    fn add_assign(&mut self, rhs: Nimber<S>) {
-        self.x ^= rhs.x;
-    }
-}
-
-impl<'b, F: BitXorAssign<&'b S>, S> AddAssign<&'b Nimber<S>> for Nimber<F> {
-    #[inline]
-    fn add_assign(&mut self, rhs: &'b Nimber<S>) {
-        self.x ^= &rhs.x;
-    }
-}
-
-// Sub
-
-impl<F: BitXor<S>, S> Sub<Nimber<S>> for Nimber<F> {
-    type Output = Nimber<<F as BitXor<S>>::Output>;
-
-    #[inline]
-    fn sub(self, rhs: Nimber<S>) -> Self::Output {
-        Nimber { x: self.x ^ rhs.x }
-    }
-}
-
-impl<'a, F: 'a, S> Sub<Nimber<S>> for &'a Nimber<F>
-    where &'a F: BitXor<S> {
-    type Output = Nimber<<&'a F as BitXor<S>>::Output>;
-
-    #[inline]
-    fn sub(self, rhs: Nimber<S>) -> Self::Output {
-        Nimber { x: &self.x ^ rhs.x }
-    }
-}
-
-impl<'b, F: BitXor<&'b S>, S> Sub<&'b Nimber<S>> for Nimber<F> {
-    type Output = Nimber<<F as BitXor<&'b S>>::Output>;
-
-    #[inline]
-    fn sub(self, rhs: &'b Nimber<S>) -> Self::Output {
-        Nimber { x: self.x ^ &rhs.x }
-    }
-}
-
-impl<'a, 'b, F, S> Sub<&'b Nimber<S>> for &'a Nimber<F>
-    where &'a F: BitXor<&'b S> {
-    type Output = Nimber<<&'a F as BitXor<&'b S>>::Output>;
-
-    #[inline]
-    fn sub(self, rhs: &'b Nimber<S>) -> Self::Output {
-        Nimber { x: &self.x ^ &rhs.x }
-    }
-}
-
-impl<F: BitXorAssign<S>, S> SubAssign<Nimber<S>> for Nimber<F> {
-    #[inline]
-    fn sub_assign(&mut self, rhs: Nimber<S>) {
-        self.x ^= rhs.x;
-    }
-}
-
-impl<'b, F: BitXorAssign<&'b S>, S> SubAssign<&'b Nimber<S>> for Nimber<F> {
-    #[inline]
-    fn sub_assign(&mut self, rhs: &'b Nimber<S>) {
-        self.x ^= &rhs.x;
+    fn not(self) -> Self::Output {
+        Nimber::from(!&self.x)
     }
 }
