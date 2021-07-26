@@ -9,18 +9,18 @@ type Level = u8;
 
 fn high_part<'a, T>(a: &'a Nimber<T>, lvl: Level) -> Nimber<T>
     where &'a T: Shr<Shift, Output=T> {
-    Nimber { x: &a.x >> ((1 as Shift) << lvl) }
+    Nimber::from(&a.x >> ((1 as Shift) << lvl))
 }
 
 
 fn low_part<T: From<Smallest>>(a: &Nimber<T>, lvl: Level) -> Nimber<T>
     where T: for<'bo> BitAnd<&'bo T, Output=T> + Shl<Shift, Output=T> + Sub<Output=T> {
-    Nimber { x: ((T::from(1 as Smallest) << ((1 as Shift) << lvl)) - T::from(1 as Smallest)) & &a.x }
+    Nimber::from(((T::from(1 as Smallest) << ((1 as Shift) << lvl)) - T::from(1 as Smallest)) & &a.x)
 }
 
 fn combine<'a, 'b, T>(a: &'a Nimber<T>, b: &'b Nimber<T>, lvl: Level) -> Nimber<T>
     where T: for<'c> BitOr<&'c T, Output=T>, &'a T: Shl<Shift, Output=T> {
-    Nimber { x: (&a.x << ((1 as Shift) << lvl)) | &b.x }
+    Nimber::from((&a.x << ((1 as Shift) << lvl)) | &b.x)
 }
 
 
@@ -70,7 +70,7 @@ fn nim_mul<T: Clone + From<Smallest>>(a: &Nimber<T>, b: &Nimber<T>, lvl: Level) 
           Nimber<T>: for<'b> AddAssign<&'b Nimber<T>>
 {
     if lvl == 0 {
-        return Nimber { x: (&a.x) & (&b.x) };
+        return Nimber::from((&a.x) & (&b.x));
     }
 
     let lvl = lvl - 1;
@@ -95,16 +95,46 @@ fn nim_mul<T: Clone + From<Smallest>>(a: &Nimber<T>, b: &Nimber<T>, lvl: Level) 
     combine(&ansl, &ansh, lvl)
 }
 
-impl<T: Clone + PartialEq + From<Smallest>> Mul for Nimber<T>
+impl<'lhs, 'rhs, T> Mul<&'rhs Nimber<T>> for &'lhs Nimber<T>
     where T: for<'b> BitAnd<&'b T, Output=T> + for<'b> BitOr<&'b T, Output=T>,
-          T: Shl<Shift, Output=T> + Sub<Output=T>,
+          T: Clone + PartialEq + From<Smallest> + Shl<Shift, Output=T> + Sub<Output=T>,
           for<'b> &'b T: BitAnd<&'b T, Output=T> + BitOr<&'b T, Output=T>,
           for<'b> &'b T: Shr<Shift, Output=T> + Shl<Shift, Output=T>,
           Nimber<T>: for<'b> AddAssign<&'b Nimber<T>>
 {
+    type Output = Nimber<T>;
+
+    fn mul(self, rhs: &'rhs Nimber<T>) -> Self::Output {
+        nim_mul(self, rhs, level(&(Nimber::from(&self.x | &rhs.x))))
+    }
+}
+
+
+impl<T> Mul for Nimber<T>
+    where for<'lhs, 'rhs> &'lhs Nimber<T>: Mul<&'rhs Nimber<T>, Output=Nimber<T>> {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        nim_mul(&self, &rhs, level(&(Nimber::<T> { x: &self.x | &rhs.x })))
+        &self * &rhs
+    }
+}
+
+
+impl<'a, T> Mul<Nimber<T>> for &'a Nimber<T>
+    where for<'lhs, 'rhs> &'lhs Nimber<T>: Mul<&'rhs Nimber<T>, Output=Nimber<T>> {
+    type Output = Nimber<T>;
+
+    fn mul(self, rhs: Nimber<T>) -> Self::Output {
+        self * &rhs
+    }
+}
+
+
+impl<'a, T> Mul<&'a Nimber<T>> for Nimber<T>
+    where for<'lhs, 'rhs> &'lhs Nimber<T>: Mul<&'rhs Nimber<T>, Output=Nimber<T>> {
+    type Output = Self;
+
+    fn mul(self, rhs: &'a Self) -> Self::Output {
+        &self * &rhs
     }
 }
