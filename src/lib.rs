@@ -5,8 +5,8 @@ pub struct Nimber<T> {
 #[macro_use]
 mod macros;
 
-mod derive;
 mod addition;
+mod derive;
 mod multiplication;
 
 pub type Nim8 = Nimber<u8>;
@@ -20,7 +20,6 @@ use num_bigint::BigUint;
 
 #[cfg(feature = "num-bigint")]
 pub type BigNim = Nimber<BigUint>;
-
 
 #[cfg(test)]
 mod tests {
@@ -48,9 +47,8 @@ mod tests {
         [0, 12, 4, 8, 13, 1, 9, 5, 6, 10, 2, 14, 11, 7, 15, 3],
         [0, 13, 6, 11, 9, 4, 15, 2, 14, 3, 8, 5, 7, 10, 1, 12],
         [0, 14, 7, 9, 5, 11, 2, 12, 10, 4, 13, 3, 15, 1, 8, 6],
-        [0, 15, 5, 10, 1, 14, 4, 11, 2, 13, 7, 8, 3, 12, 6, 9]
+        [0, 15, 5, 10, 1, 14, 4, 11, 2, 13, 7, 8, 3, 12, 6, 9],
     ];
-
 
     #[test]
     fn add() {
@@ -81,8 +79,10 @@ mod tests {
     fn bigint_add() {
         for a in u8::MIN..u8::MAX {
             for b in u8::MIN..u8::MAX {
-                assert_eq!(BigNim::from(BigUint::from(a)) + BigNim::from(BigUint::from(b)),
-                           BigNim::from(BigUint::from(a ^ b)));
+                assert_eq!(
+                    BigNim::from(BigUint::from(a)) + BigNim::from(BigUint::from(b)),
+                    BigNim::from(BigUint::from(a ^ b))
+                );
             }
         }
     }
@@ -91,7 +91,10 @@ mod tests {
     fn sub() {
         for a in u8::MIN..u8::MAX {
             for b in u8::MIN..u8::MAX {
-                assert_eq!(Nimber::from(a) - Nimber::from(b), Nimber::from(a) + Nimber::from(b));
+                assert_eq!(
+                    Nimber::from(a) - Nimber::from(b),
+                    Nimber::from(a) + Nimber::from(b)
+                );
             }
         }
     }
@@ -116,8 +119,10 @@ mod tests {
     fn mul() {
         for a in 0..MUL_TABLE.len() {
             for b in 0..MUL_TABLE[a].len() {
-                assert_eq!(Nimber::from(a) * Nimber::from(b),
-                           Nimber::from(MUL_TABLE[a][b] as usize));
+                assert_eq!(
+                    Nimber::from(a) * Nimber::from(b),
+                    Nimber::from(MUL_TABLE[a][b] as usize)
+                );
             }
         }
     }
@@ -147,8 +152,10 @@ mod tests {
     fn bigint_mul_same() {
         for a in 0..MUL_TABLE.len() {
             for b in 0..MUL_TABLE[a].len() {
-                assert_eq!((Nimber::from(BigUint::from(a)) * Nimber::from(BigUint::from(b))).x,
-                           BigUint::from((Nimber::from(a) * Nimber::from(b)).x));
+                assert_eq!(
+                    (Nimber::from(BigUint::from(a)) * Nimber::from(BigUint::from(b))).x,
+                    BigUint::from((Nimber::from(a) * Nimber::from(b)).x)
+                );
             }
         }
     }

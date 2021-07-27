@@ -1,6 +1,9 @@
 use super::Nimber;
 
-use std::ops::{Add, Sub, BitXor, AddAssign, SubAssign, BitXorAssign, BitOr, BitOrAssign, BitAnd, BitAndAssign, Shl, ShlAssign, Shr, ShrAssign, Neg, Not};
+use std::ops::{
+    Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Neg, Not, Shl,
+    ShlAssign, Shr, ShrAssign, Sub, SubAssign,
+};
 
 nimber_nimber_forward_binop!(impl Add, add as BitXor, bitxor);
 nimber_nimber_forward_binop_assign!(impl AddAssign, add_assign as BitXorAssign, bitxor_assign);
@@ -32,7 +35,9 @@ impl<T> Neg for Nimber<T> {
 }
 
 impl<T> Neg for &Nimber<T>
-    where Nimber<T>: Clone {
+where
+    Nimber<T>: Clone,
+{
     type Output = Nimber<T>;
 
     fn neg(self) -> Self::Output {
@@ -40,7 +45,7 @@ impl<T> Neg for &Nimber<T>
     }
 }
 
-impl<T: Not<Output=T>> Not for Nimber<T> {
+impl<T: Not<Output = T>> Not for Nimber<T> {
     type Output = Nimber<T>;
 
     fn not(self) -> Self::Output {
@@ -49,7 +54,9 @@ impl<T: Not<Output=T>> Not for Nimber<T> {
 }
 
 impl<'a, T> Not for &'a Nimber<T>
-    where &'a T: Not<Output=T> {
+where
+    &'a T: Not<Output = T>,
+{
     type Output = Nimber<T>;
 
     fn not(self) -> Self::Output {

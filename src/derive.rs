@@ -1,8 +1,8 @@
 use super::Nimber;
 
-use std::hash::{Hash, Hasher};
 use std::cmp::Ordering;
 use std::fmt::{Debug, Formatter};
+use std::hash::{Hash, Hasher};
 
 impl<T: Clone> Clone for Nimber<T> {
     #[inline]
