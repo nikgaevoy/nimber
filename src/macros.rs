@@ -130,6 +130,7 @@ macro_rules! nimber_ref_binop {
         {
             type Output = Self;
 
+            #[inline]
             fn $method(self, rhs: Self) -> Self::Output {
                 $imp::$method(&self, &rhs)
             }
@@ -141,6 +142,7 @@ macro_rules! nimber_ref_binop {
         {
             type Output = Nimber<T>;
 
+            #[inline]
             fn $method(self, rhs: Nimber<T>) -> Self::Output {
                 $imp::$method(self, &rhs)
             }
@@ -152,6 +154,7 @@ macro_rules! nimber_ref_binop {
         {
             type Output = Self;
 
+            #[inline]
             fn $method(self, rhs: &'b Self) -> Self::Output {
                 $imp::$method(&self, rhs)
             }

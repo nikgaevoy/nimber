@@ -29,6 +29,7 @@ nimber_val_forward_binop_assign!(impl ShlAssign, shl_assign);
 impl<T> Neg for Nimber<T> {
     type Output = Nimber<T>;
 
+    #[inline]
     fn neg(self) -> Self::Output {
         self
     }
@@ -40,6 +41,7 @@ where
 {
     type Output = Nimber<T>;
 
+    #[inline]
     fn neg(self) -> Self::Output {
         self.clone()
     }
@@ -48,6 +50,7 @@ where
 impl<T: Not<Output = T>> Not for Nimber<T> {
     type Output = Nimber<T>;
 
+    #[inline]
     fn not(self) -> Self::Output {
         Nimber::from(!self.x)
     }
@@ -59,6 +62,7 @@ where
 {
     type Output = Nimber<T>;
 
+    #[inline]
     fn not(self) -> Self::Output {
         Nimber::from(!&self.x)
     }

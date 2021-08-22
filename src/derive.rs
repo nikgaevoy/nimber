@@ -19,6 +19,7 @@ impl<T: Clone> Clone for Nimber<T> {
 impl<T: Copy> Copy for Nimber<T> {}
 
 impl<T: Debug> Debug for Nimber<T> {
+    #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Nimber").field("x", &self.x).finish()
     }
@@ -35,6 +36,14 @@ impl<T> From<T> for Nimber<T> {
     #[inline]
     fn from(x: T) -> Self {
         Self { x }
+    }
+}
+
+impl<T> Nimber<T> {
+    /// Converts to the inner type
+    #[inline]
+    pub fn unwrap(self) -> T {
+        self.x
     }
 }
 

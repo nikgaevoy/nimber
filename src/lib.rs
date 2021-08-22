@@ -167,4 +167,44 @@ mod tests {
             assert_eq!(-Nimber::from(a), Nimber::from(a));
         }
     }
+
+    #[test]
+    fn div() {
+        for a in u8::MIN..u8::MAX {
+            for b in 1u8..u8::MAX {
+                let na = Nimber::from(a);
+                let nb = Nimber::from(b);
+
+                assert_eq!(na / nb * nb, na);
+            }
+        }
+    }
+
+    #[test]
+    fn square() {
+        for a in u8::MIN..u8::MAX {
+            let na = Nimber::from(a);
+
+            assert_eq!(na.square(), na * na);
+        }
+    }
+
+    #[test]
+    fn sqrt() {
+        for a in u8::MIN..u8::MAX {
+            let na = Nimber::from(a);
+
+            assert_eq!(na.sqrt().square(), na);
+            assert_eq!(na.square().sqrt(), na);
+        }
+    }
+
+    #[test]
+    fn inverse() {
+        for a in 1..u8::MAX {
+            let na = Nimber::from(a);
+
+            assert_eq!(na * na.recip(), Nimber::from(1));
+        }
+    }
 }
