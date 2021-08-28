@@ -33,12 +33,12 @@ where
 
 // assuming that 1 << 1 << lvl always fits in T, even if a = 0
 #[inline]
-fn combine<'a, 'b, T>(a: &'a Nimber<T>, b: &'b Nimber<T>, lvl: Level) -> Nimber<T>
-where
-    &'a Nimber<T>: Shl<Shift, Output = Nimber<T>>,
-    Nimber<T>: BitOr<&'b Nimber<T>, Output = Nimber<T>>,
+fn combine<'a, 'b, T>(high: &'a Nimber<T>, low: &'b Nimber<T>, lvl: Level) -> Nimber<T>
+    where
+        &'a Nimber<T>: Shl<Shift, Output=Nimber<T>>,
+        Nimber<T>: BitOr<&'b Nimber<T>, Output=Nimber<T>>,
 {
-    (a << ((1 as Shift) << lvl)) | b
+    (high << ((1 as Shift) << lvl)) | low
 }
 
 // finds smallest level at which high_part is 0
@@ -61,7 +61,7 @@ where
     lvl
 }
 
-// multiply by 1 << 1 << (lvl - 1)
+// multiply by 1 << ((1 << lvl) - 1)
 fn nimber_mul_fermat<'a, T: From<Smallest>>(a: &'a Nimber<T>, lvl: Level) -> Nimber<T>
 where
     // high_part
@@ -92,10 +92,10 @@ where
 
     let asum = al;
 
-    let low = nimber_mul_fermat::<T>(&asum, lvl);
-    let high = nimber_mul_fermat::<T>(&nimber_mul_fermat::<T>(&ah, lvl), lvl);
+    let ansh = nimber_mul_fermat::<T>(&asum, lvl);
+    let ansl = nimber_mul_fermat::<T>(&nimber_mul_fermat::<T>(&ah, lvl), lvl);
 
-    combine::<T>(&low, &high, lvl)
+    combine::<T>(&ansh, &ansl, lvl)
 }
 
 fn nimber_mul_nimber<'a, 'b, T: From<Smallest>>(
@@ -140,17 +140,17 @@ where
     bl += &bh;
     let bsum = bl;
 
-    let mut ansl = nimber_mul_nimber::<T>(&asum, &bsum, lvl);
-    ansl += &low_mul;
-    let mut ansh = nimber_mul_fermat::<T>(&nimber_mul_nimber::<T>(&ah, &bh, lvl), lvl);
+    let mut ansh = nimber_mul_nimber::<T>(&asum, &bsum, lvl);
     ansh += &low_mul;
+    let mut ansl = nimber_mul_fermat::<T>(&nimber_mul_nimber::<T>(&ah, &bh, lvl), lvl);
+    ansl += &low_mul;
 
-    combine::<T>(&ansl, &ansh, lvl)
+    combine::<T>(&ansh, &ansl, lvl)
 }
 
 /// Multiplication of nimbers
 ///
-/// The complexity is O(n^(log_2 3) log n)
+/// The complexity is *O*(*n*^(log_2 3) \* log *n*)
 impl<'a, 'b, T: PartialEq + From<Smallest>> Mul<&'b Nimber<T>> for &'a Nimber<T>
 where
     for<'x> &'x Nimber<T>: Shr<Shift, Output = Nimber<T>>,
@@ -315,7 +315,7 @@ where
 {
     /// Takes the reciprocal (inverse) of a nimber, `1 / x`.
     ///
-    /// The complexity is O(n^(log_2 3) log n).
+    /// The complexity is *O*(*n*^(log_2 3) \* log *n*).
     #[inline]
     pub fn recip(&self) -> Nimber<T> {
         nimber_inverse::<T>(&self, level::<T>(&self))
@@ -338,7 +338,7 @@ where
 {
     /// Squares a nimber, `x * x`.
     ///
-    /// The complexity is O(n^(log_2 3)), faster than the general multiplication.
+    /// The complexity is *O*(*n*^(log_2 3)), faster than the general multiplication.
     #[inline]
     pub fn square(&self) -> Nimber<T> {
         nimber_square::<T>(&self, level::<T>(&self))
@@ -346,7 +346,7 @@ where
 
     /// Returns square root of a nimber.
     ///
-    /// The complexity is O(n^(log_2 3)).
+    /// The complexity is *O*(*n*^(log_2 3)).
     #[inline]
     pub fn sqrt(&self) -> Nimber<T> {
         nimber_sqrt::<T>(&self, level::<T>(&self))
@@ -375,7 +375,7 @@ where
     /// Division of nimbers.
     /// Algorithm-wise it is an alias to the multiplication by the inverse.
     ///
-    /// The complexity is O(n^(log_2 3) log n).
+    /// The complexity is *O*(*n*^(log_2 3) \* log *n*).
     #[inline]
     fn div(self, rhs: &'b Nimber<T>) -> Self::Output {
         self * rhs.recip()
